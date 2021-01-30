@@ -1,0 +1,64 @@
+const frisby = require('frisby');
+const {credentials} = require('../../utils/credentials');
+
+
+let url = 'https://mockapi.io/';
+
+
+describe('Test name', function () {
+
+    let access_token;
+
+    beforeAll(function () {
+        // Authorization for all subsequent tests
+        return frisby.post(url +'/api/tokens', {
+            "username": credentials.username,
+            "password": credentials.password
+        })
+            .expect('status', 200)
+            .then(function (json) {
+                access_token = json._json.Id;
+                // Set 'Authorization' header for all further requests
+                frisby.globalSetup({
+                    request: {
+                        headers: {
+                            'Authorization': 'Bearer ' + access_token
+                        }
+                    }
+                });
+            });
+    });
+
+    /* #####TESTS#####TESTS#####TESTS#####TESTS#####TESTS#####TESTS#####TESTS */
+
+    // Sample POST request
+    test('POST request', function () {
+        return frisby.post(url +'/api/')
+            .expect('status', 201)
+            .then(function (json) {
+                id = json._json.Id;
+                expect(id).not.toBe(undefined)
+            });
+    });
+
+    // Sample GET request
+    test('GET request', function () {
+        // Return the Frisby.js Spec in the 'test()' (just like a promise)
+        return frisby.get(url + '/api/')
+            .expect('status', 200);
+    });
+
+    // Sample PUT request
+    test('PUT request', function () {
+        return frisby.put(url + '/api/')
+            .expect('status', 204);
+    });
+
+    // Sample DELETE request
+    test('DELETE request', function () {
+        return frisby.del(url + '/api/')
+            .expect('status', 204);
+    });
+
+
+});
